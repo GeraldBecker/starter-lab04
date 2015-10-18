@@ -17,7 +17,6 @@ class Order extends Application {
 
     // start a new order
     function neworder() {
-        //FIXME
         $order_num = $this->orders->highest() + 1;
         
         $neworder = $this->orders->create();
@@ -37,7 +36,7 @@ class Order extends Application {
 
         $this->data['pagebody'] = 'show_menu';
         $this->data['order_num'] = $order_num;
-        //FIXME
+        
         $this->data['title'] = "Order # ".$order_num.' ('. 
                 number_format($this->orders->total($order_num), 2) . ')';;
 
@@ -79,7 +78,6 @@ class Order extends Application {
 
     // add an item to an order
     function add($order_num, $item) {
-        //FIXME
         $this->orders->add_item($order_num, $item);
         redirect('/order/display_menu/' . $order_num);
     }
@@ -99,19 +97,30 @@ class Order extends Application {
         }
         $this->data['items'] = $items;
         
+        $this->data['okornot'] = $this->orders->validate($order_num) ? "" : "disabled";
+        
         $this->render();
     }
 
     // proceed with checkout
     function proceed($order_num) {
-        $this->data['okornot'] = $this->orders->validate($num);
+        if(!$this->orders->validate($order_num))
+            redirect('/order/display_menu/'.$order_num);
+        $record = $this->orders->get($order_num);
+        $record->date = date(DATE_ATOM);
+        $record->status = 'c';
+        $record->total = $this->orders->total($order_num);
+        $this->orders->update($record);
         redirect('/');
     }
 
     // cancel the order
     function cancel($order_num) {
-        //FIXME
+        $this->orderitems->delete_some($order_num);
+        $record = $this->orders->get($order_num);
+        $record->status = 'x';
+        $this->orders->update($record);
         redirect('/');
     }
-
+    
 }
