@@ -44,7 +44,9 @@ class Orders extends MY_Model {
 
     // retrieve the details for an order
     function details($num) {
-        
+        $CI = &get_instance();
+        $items = $CI->orderitems->group($num);
+        return $items;
     }
 
     // cancel an order
