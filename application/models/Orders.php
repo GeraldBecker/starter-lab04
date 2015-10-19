@@ -49,7 +49,13 @@ class Orders extends MY_Model {
 
     // cancel an order
     function flush($num) {
-        
+        $CI = &get_instance();
+        $items = $CI->orderitems->group($num);
+        if(count($items) > 0) {
+            foreach($items as $item) {
+                $CI->orderitems->delete($num, $item->item);
+            }
+        }
     }
 
     // validate an order
